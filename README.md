@@ -6,19 +6,9 @@ This is a Map Generator for 2D Games. I've found it boring to make Maps manually
 You can draw on the Canvas. After you're satisfied with your map, click on the "Exportieren" (export) button.
 It will automaticly convert your map to an Array, which you can directly paste into your Project.
 
-**Example:**
-`map: [
-[0,0,0,0,0,0,0,0,0,0,0,0],
-[0,2,0,2,0,0,0,0,0,0,0,0],
-[0,2,0,2,0,0,0,0,0,2,0,0],
-[0,0,2,2,0,0,0,0,0,2,2,2],
-[0,0,0,2,2,0,0,0,0,2,0,0],
-[0,0,0,0,2,2,2,2,2,2,0,0],
-[0,0,0,0,0,0,0,2,2,0,0,0],
-[0,0,2,0,0,0,2,2,0,0,0,0],
-[0,0,0,2,2,2,2,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0,0,0],
-    ], `
+**Where to paste**
+If you have a 2D project like this one: [2D Raycast Tutorial by vinibiavatti1](https://github.com/vinibiavatti1/RayCastingTutorial)
+You can simply paste it at the correct position. This tool was made specificly for this Tutorial, I cant guarantee you can use it in other Projects/Languages than Javascript.
 
 ---
 
