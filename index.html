@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Minimaler Map Editor - Dynamisch</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .toolbar {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #ccc;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .toolbar-group {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        #map-container {
+            display: grid;
+            gap: 1px;
+            background-color: #ccc;
+            width: fit-content;
+            border: 2px solid #333;
+            user-select: none; 
+        }
+        .cell {
+            width: 30px;
+            height: 30px;
+            background-color: white;
+            cursor: pointer;
+        }
+        .type-0 { background-color: #a8e6cf; }
+        .type-2 { background-color: #555555; }
+        
+        textarea {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+            height: 200px;
+            font-family: monospace;
+            white-space: pre;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <label>Breite:</label>
+            <input type="number" id="input-cols" value="12" min="1" max="50">
+            <label>Höhe:</label>
+            <input type="number" id="input-rows" value="10" min="1" max="50">
+            <button onclick="createNewMap()">Neues Raster erstellen</button>
+        </div>
+        
+        <div class="toolbar-group" style="border-left: 1px solid #ccc; padding-left: 15px;">
+            <label>Pinsel:</label>
+            <select id="brush-select">
+                <option value="0">0 - Boden (Grün)</option>
+                <option value="2" selected>2 - Wand (Grau)</option>
+            </select>
+        </div>
+
+        <div class="toolbar-group" style="border-left: 1px solid #ccc; padding-left: 15px;">
+            <button onclick="exportMap()">Exportieren</button>
+        </div>
+    </div>
+
+    <div id="map-container"></div>
+
+    <textarea id="export-output" placeholder="Dein Export-Code erscheint hier..."></textarea>
+
+    <script>
+        let mapData = [];
+        let isDrawing = false;
+        let currentCols = 0;
+        let currentRows = 0;
+        const mapContainer = document.getElementById('map-container');
+        const brushSelect = document.getElementById('brush-select');
+
+        // Erstellt das Raster basierend auf den Input-Feldern
+        function createNewMap() {
+            const newCols = parseInt(document.getElementById('input-cols').value, 10);
+            const newRows = parseInt(document.getElementById('input-rows').value, 10);
+
+            // Validierung gegen unsinnige oder zu große Werte
+            if (newCols < 1 || newRows < 1 || newCols > 50 || newRows > 50) {
+                alert("Bitte Werte zwischen 1 und 50 eingeben.");
+                return;
+            }
+
+            // Sicherheitsabfrage, falls bereits eine Map existiert
+            if (mapData.length > 0) {
+                const confirmReset = confirm("Achtung: Dadurch wird das aktuelle Raster gelöscht. Fortfahren?");
+                if (!confirmReset) return;
+            }
+
+            currentCols = newCols;
+            currentRows = newRows;
+            
+            // Alten Zustand komplett leeren
+            mapContainer.innerHTML = '';
+            mapData = [];
+
+            // Neues Grid im DOM aufbauen
+            mapContainer.style.gridTemplateColumns = `repeat(${currentCols}, 30px)`;
+
+            for (let y = 0; y < currentRows; y++) {
+                let rowArray = [];
+                for (let x = 0; x < currentCols; x++) {
+                    rowArray.push(0);
+                    createCell(x, y, mapContainer);
+                }
+                mapData.push(rowArray);
+            }
+            
+            // Textfeld leeren
+            document.getElementById('export-output').value = '';
+        }
+
+        // Erstellt ein einzelnes Feld (Zelle)
+        function createCell(x, y, container) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell', 'type-0');
+            cell.dataset.x = x;
+            cell.dataset.y = y;
+
+            cell.addEventListener('mousedown', () => {
+                isDrawing = true;
+                paintCell(cell, x, y);
+            });
+            cell.addEventListener('mouseenter', () => {
+                if (isDrawing) paintCell(cell, x, y);
+            });
+
+            container.appendChild(cell);
+        }
+
+        window.addEventListener('mouseup', () => {
+            isDrawing = false;
+        });
+
+        function paintCell(cellElement, x, y) {
+            const brushValue = parseInt(brushSelect.value, 10);
+            mapData[y][x] = brushValue;
+            cellElement.className = 'cell'; 
+            cellElement.classList.add(`type-${brushValue}`);
+        }
+
+        function exportMap() {
+            if (mapData.length === 0) return;
+
+            let output = "map: [\n";
+            for (let y = 0; y < currentRows; y++) {
+                output += "        [" + mapData[y].join(",") + "],\n";
+            }
+            output += "    ],";
+            
+            document.getElementById('export-output').value = output;
+        }
+
+        // Startet das Tool initial mit den Werten aus den Input-Feldern
+        createNewMap();
+    </script>
+</body>
+</html>
